@@ -1,9 +1,9 @@
 package anonymous.frontend.servlets;
 
+import anonymous.base.Host;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import anonymous.base.Contact;
-import anonymous.base.ContactService;
+import anonymous.base.HostService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,23 +12,23 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 
-public class ContactServlet extends HttpServlet {
-    private final ContactService contactService;
+public class HosttServlet extends HttpServlet {
+    private final HostService hosttService;
 
-    public ContactServlet(ContactService contactService) {
-        this.contactService = contactService;
+    public HosttServlet(HostService contactService) {
+        this.hosttService = contactService;
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String nameFilter = request.getParameter("nameFilter");
-        if (nameFilter != null) {
-            Collection<Contact> contacts = contactService.getFilteredContacts(nameFilter);
-            if (contacts != null && !contacts.isEmpty()) {
+        String identityFilter = request.getParameter("identityFilter");
+        if (identityFilter != null) {
+            Collection<Host> hosts = hosttService.getFilteredHosts(identityFilter);
+            if (hosts != null && !hosts.isEmpty()) {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 JsonObject json = new JsonObject();
-                json.add("contacts", new Gson().toJsonTree(contacts));
+                json.add("hosts", new Gson().toJsonTree(hosts));
                 response.getWriter().write(json.toString());
                 response.getWriter().flush();
                 response.setStatus(HttpServletResponse.SC_OK);

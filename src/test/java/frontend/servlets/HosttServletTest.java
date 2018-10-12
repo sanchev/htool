@@ -1,7 +1,7 @@
 package frontend.servlets;
 
-import anonymous.frontend.ContactServiceImpl;
-import anonymous.frontend.servlets.ContactServlet;
+import anonymous.frontend.HostServiceImpl;
+import anonymous.frontend.servlets.HosttServlet;
 import db.DBServiceDummy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,9 +21,9 @@ import java.io.StringWriter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 
-public class ContactServletTest {
+public class HosttServletTest {
 
-    private static final Logger LOGGER = LogManager.getLogger(ContactServletTest.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(HosttServletTest.class.getName());
 
     @Mock
     HttpServletRequest request;
@@ -40,19 +40,19 @@ public class ContactServletTest {
     public void testDoPost_SC_OK() throws IOException, ServletException {
         LOGGER.info("testDoPost_SC_OK()");
 
-        Mockito.when(request.getParameter("nameFilter")).thenReturn("^.*[lkn].*$");
+        Mockito.when(request.getParameter("identityFilter")).thenReturn("^.*[rk].*$");
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         Mockito.when(response.getWriter()).thenReturn(printWriter);
-        ContactServlet contactServlet = new ContactServlet(new ContactServiceImpl(new DBServiceDummy()));
-        contactServlet.doPost(request, response);
+        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
+        hosttServlet.doPost(request, response);
 
         verify(response).setContentType("application/json");
 
         String result = stringWriter.getBuffer().toString().trim();
         LOGGER.info(String.format("JSON: %s", result));
-        String expectedResult = "{\"contacts\":[{\"id\":1,\"name\":\"Ted Mosby\"}]}";
+        String expectedResult = "{\"hosts\":[{\"id\":1,\"ip\":\"10.0.7.183/32\",\"identity\":\"shved_nataljya\",\"device\":\"\",\"login\":\"admin\",\"password\":\"120960\"}]}";
         assertEquals(result, expectedResult);
 
         verify(response).setStatus(HttpServletResponse.SC_OK);
@@ -62,8 +62,8 @@ public class ContactServletTest {
     public void testDoPost_SC_BAD_REQUEST() throws IOException, ServletException {
         LOGGER.info("testDoPost_SC_BAD_REQUEST()");
 
-        ContactServlet contactServlet = new ContactServlet(new ContactServiceImpl(new DBServiceDummy()));
-        contactServlet.doPost(request, response);
+        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
+        hosttServlet.doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
@@ -72,10 +72,10 @@ public class ContactServletTest {
     public void testDoPost_SC_NO_CONTENT() throws IOException, ServletException {
         LOGGER.info("testDoPost_SC_NO_CONTENT()");
 
-        Mockito.when(request.getParameter("nameFilter")).thenReturn("^.*$");
+        Mockito.when(request.getParameter("identityFilter")).thenReturn("^.*$");
 
-        ContactServlet contactServlet = new ContactServlet(new ContactServiceImpl(new DBServiceDummy()));
-        contactServlet.doPost(request, response);
+        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
+        hosttServlet.doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
     }

@@ -1,10 +1,10 @@
 package anonymous;
 
-import anonymous.base.ContactService;
 import anonymous.base.DBService;
+import anonymous.base.HostService;
 import anonymous.db.DBServiceImpl;
-import anonymous.frontend.ContactServiceImpl;
-import anonymous.frontend.servlets.ContactServlet;
+import anonymous.frontend.HostServiceImpl;
+import anonymous.frontend.servlets.HosttServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
@@ -21,9 +21,9 @@ public class App {
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         DBService dbService = new DBServiceImpl();
-        ContactService contactService = new ContactServiceImpl(dbService);
+        HostService hostService = new HostServiceImpl(dbService);
 
-        handler.addServlet(new ServletHolder(new ContactServlet(contactService)), "/hello/contacts");
+        handler.addServlet(new ServletHolder(new HosttServlet(hostService)), "/hello/hosts");
         server.setHandler(handler);
 
         server.start();

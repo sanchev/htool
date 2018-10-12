@@ -1,6 +1,6 @@
 package db;
 
-import anonymous.base.Contact;
+import anonymous.base.Host;
 import anonymous.base.DBService;
 
 import java.util.ArrayList;
@@ -8,17 +8,14 @@ import java.util.Collection;
 
 public final class DBServiceDummy implements DBService {
 
-    private static Collection<Contact> allContacts = new ArrayList<Contact>();
+    private static Collection<Host> allHosts = new ArrayList<>();
 
     static {
-        allContacts.add(new Contact(1, "Ted Mosby"));
-        allContacts.add(new Contact(2, "Barney Stinson"));
-        allContacts.add(new Contact(3, "Robin Scherbatsky"));
-        allContacts.add(new Contact(4, "Marshall Eriksen"));
-        allContacts.add(new Contact(5, "Lily Aldrin"));
+        allHosts.add(new  Host(1, "10.0.7.183/32", "shved_nataljya", "", "admin", "120960"));
+        allHosts.add(new  Host(2, "10.0.7.186/32", "kurta_ivan", "", "admin", "120960"));
     }
 
-    public Collection<Contact> getAllContacts() {
-        return allContacts;
+    public Collection<Host> getAllHosts() {
+        return allHosts;
     }
 }

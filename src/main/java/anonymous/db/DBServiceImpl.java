@@ -1,6 +1,6 @@
 package anonymous.db;
 
-import anonymous.base.Contact;
+import anonymous.base.Host;
 import anonymous.base.DBService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +70,7 @@ public class DBServiceImpl implements DBService {
         configuration.setProperty("hibernate.show_sql", HIBERNATE_SHOW_SQL);
         configuration.setProperty("hibernate.hbm2ddl.auto", HIBERNATE_HBM2DDL_AUTO);
 
-        configuration.addAnnotatedClass(Contact.class);
+        configuration.addAnnotatedClass(Host.class);
 
         return configuration;
     }
@@ -99,20 +99,20 @@ public class DBServiceImpl implements DBService {
         return configuration;
     }
 
-    public Collection<Contact> getAllContacts() {
+    public Collection<Host> getAllHosts() {
         try (
                 Session session = sessionFactory.openSession();
-                ScrollableResults scrollableResults = session.createCriteria(Contact.class)
+                ScrollableResults scrollableResults = session.createCriteria(Host.class)
                         .setReadOnly(true)
                         .setFetchSize(FETCH_SIZE)
                         .scroll(ScrollMode.FORWARD_ONLY)
         ) {
-            Collection<Contact> contacts = new ArrayList<>();
+            Collection<Host> Hosts = new ArrayList<>();
             while (scrollableResults.next()) {
-                Contact contact = (Contact) scrollableResults.get(0);
-                contacts.add(contact);
+                Host Host = (Host) scrollableResults.get(0);
+                Hosts.add(Host);
             }
-            return contacts;
+            return Hosts;
         } catch (HibernateException e) {
             LOGGER.error(e.getMessage());
             return null;

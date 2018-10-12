@@ -1,6 +1,6 @@
 package db;
 
-import anonymous.base.Contact;
+import anonymous.base.Host;
 import anonymous.db.DBServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,26 +16,26 @@ public class DBServiceImplTest {
     private static final Logger LOGGER = LogManager.getLogger(DBServiceImplTest.class.getName());
 
     @Test
-    public void testGetAllContacts() {
-        LOGGER.info("testGetAllContacts()");
+    public void testGetAllHosts() {
+        LOGGER.info("testGetAllHosts()");
 
-        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "test", "./h2db_test");
-        Collection<Contact> contacts = dbService.getAllContacts();
-        LOGGER.info(String.format("All contacts from db: %s", contacts));
+        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "./h2db_test");
+        Collection<Host> hosts = dbService.getAllHosts();
+        LOGGER.info(String.format("All hosts from db: %s", hosts));
 
         DBServiceDummy dbServiceDummy = new DBServiceDummy();
-        Collection<Contact> expectedContacts = dbServiceDummy.getAllContacts();
-        LOGGER.info(String.format("Expected all contacts: %s", contacts));
+        Collection<Host> expectedHosts = dbServiceDummy.getAllHosts();
+        LOGGER.info(String.format("Expected all hosts: %s", hosts));
 
-        assertEquals(contacts, expectedContacts);
+        assertEquals(hosts, expectedHosts);
     }
 
     @Test(expected = HibernateException.class)
-    public void testGetAllContacts_EXCEPTION() {
-        LOGGER.info("testGetAllContacts_EXCEPTION()");
+    public void testGetAllHosts_EXCEPTION() {
+        LOGGER.info("testGetAllHosts_EXCEPTION()");
 
         //no url
-        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "test", "");
-        Collection<Contact> contacts = dbService.getAllContacts();
+        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "");
+        dbService.getAllHosts();
     }
 }
