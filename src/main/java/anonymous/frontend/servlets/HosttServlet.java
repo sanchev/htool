@@ -2,6 +2,7 @@ package anonymous.frontend.servlets;
 
 import anonymous.base.Host;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import anonymous.base.HostService;
 
@@ -28,7 +29,10 @@ public class HosttServlet extends HttpServlet {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 JsonObject json = new JsonObject();
-                json.add("hosts", new Gson().toJsonTree(hosts));
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.serializeNulls();
+                Gson gson = gsonBuilder.create();
+                json.add("hosts", gson.toJsonTree(hosts));
                 response.getWriter().write(json.toString());
                 response.getWriter().flush();
                 response.setStatus(HttpServletResponse.SC_OK);

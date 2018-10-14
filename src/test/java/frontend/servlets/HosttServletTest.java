@@ -52,7 +52,8 @@ public class HosttServletTest {
 
         String result = stringWriter.getBuffer().toString().trim();
         LOGGER.info(String.format("JSON: %s", result));
-        String expectedResult = "{\"hosts\":[{\"id\":1,\"ip\":\"10.0.7.183/32\",\"identity\":\"shved_nataljya\",\"device\":\"\",\"login\":\"admin\",\"password\":\"120960\"}]}";
+        String expectedResult = "{\"hosts\":[{\"id\":1,\"ip\":\"10.0.7.183/32\",\"identity\":\"shved_nataljya\",\"device\":null,\"login\":\"admin\",\"password\":\"120960\"}]}";
+        LOGGER.info(String.format("JSON: %s", expectedResult));
         assertEquals(result, expectedResult);
 
         verify(response).setStatus(HttpServletResponse.SC_OK);
