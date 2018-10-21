@@ -21,9 +21,9 @@ import java.io.StringWriter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 
-public class HosttServletTest {
+public class HostServletTest {
 
-    private static final Logger LOGGER = LogManager.getLogger(HosttServletTest.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(HostServletTest.class.getName());
 
     @Mock
     HttpServletRequest request;
