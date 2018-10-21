@@ -5,6 +5,7 @@ import anonymous.db.DBServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -15,19 +16,28 @@ public class DBServiceImplTest {
 
     private static final Logger LOGGER = LogManager.getLogger(DBServiceImplTest.class.getName());
 
+    private DBServiceImpl dbService;
+
+    @Before
+    public void before() {
+        String dbiniPath = "classpath:dbinit.sql";
+        String url = String.format("mem:test;INIT=RUNSCRIPT FROM '%s'", dbiniPath);
+
+        dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "test", url);
+    }
+
     @Test
     public void testGetAllHosts() {
         LOGGER.info("testGetAllHosts()");
 
-        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "./h2db_test");
         Collection<Host> hosts = dbService.getAllHosts();
         LOGGER.info(String.format("All hosts from db: %s", hosts));
 
         DBServiceDummy dbServiceDummy = new DBServiceDummy();
         Collection<Host> expectedHosts = dbServiceDummy.getAllHosts();
-        LOGGER.info(String.format("Expected all hosts: %s", hosts));
+        LOGGER.info(String.format("Expected all hosts: %s", expectedHosts));
 
-        assertEquals(hosts, expectedHosts);
+        assertEquals(expectedHosts, hosts);
     }
 
     @Test(expected = HibernateException.class)
@@ -35,7 +45,17 @@ public class DBServiceImplTest {
         LOGGER.info("testGetAllHosts_EXCEPTION()");
 
         //no url
-        DBServiceImpl dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "");
-        dbService.getAllHosts();
+        dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "");
     }
+
+    @Test
+    public void testAddHost() {
+        LOGGER.info("testAddHost()");
+
+        Host host = new Host();
+        dbService.addHost(host);
+
+        assertEquals(3, host.getId());
+    }
+
 }

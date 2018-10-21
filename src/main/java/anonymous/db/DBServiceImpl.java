@@ -118,4 +118,18 @@ public class DBServiceImpl implements DBService {
             return null;
         }
     }
+
+    public long addHost(Host host) {
+        long hostId = -1;
+        try (Session session = sessionFactory.openSession();) {
+            Transaction transaction = session.beginTransaction();
+            hostId = (long) session.save(host);
+            host.setId(hostId);
+            transaction.commit();
+        } catch (HibernateException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            return hostId;
+        }
+    }
 }

@@ -35,7 +35,7 @@ public class HostServiceImplTest {
         HostServiceImpl hostService = new HostServiceImpl(dbService);
         Collection<Host> filteredHosts = hostService.getFilteredHosts("^.*[rk].*$");
         Collection<Host> expectedFilteredHosts = new ArrayList<>();
-        expectedFilteredHosts.add(new Host(1, "10.0.7.183/32", "shved_nataljya", "", "admin", "120960"));
+        expectedFilteredHosts.add(new Host(1, "10.0.7.183/32", "shved_nataljya", null, "admin", "120960"));
         assertEquals(filteredHosts, expectedFilteredHosts);
     }
 
@@ -48,8 +48,7 @@ public class HostServiceImplTest {
         HostServiceImpl contactService = new HostServiceImpl(dbService);
         Collection<Host> filteredHosts = contactService.getFilteredHosts("^s.*$");
         Collection<Host> expectedFilteredHosts = new ArrayList<>();
-        expectedFilteredHosts.add(new  Host(2, "10.0.7.186/32", "kurta_ivan", "", "admin", "120960"));
+        expectedFilteredHosts.add(new  Host(2, "10.0.7.186/32", "kurta_ivan", null, "admin", "120960"));
         assertEquals(filteredHosts, expectedFilteredHosts);
     }
-
 }
