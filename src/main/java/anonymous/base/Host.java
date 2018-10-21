@@ -3,10 +3,11 @@ package anonymous.base;
 import com.google.gson.annotations.SerializedName;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "hosts")
-public class Host {
+public class Host implements Serializable {
     private static final String ID_TAG = "id";
     private static final String IP_TAG = "ip";
     private static final String IDENTITY_TAG = "identity";
@@ -41,20 +42,17 @@ public class Host {
     @Column(name = "password")
     private String password;
 
-    public Host() {}
-
-    public Host(long id, String ip) {
-        this.id = id;
-        this.ip = ip;
+    public Host() {
+        this.setId(-1);
     }
 
     public Host(long id, String ip, String identity, String device, String login, String password) {
-        this.id = id;
-        this.ip = ip;
-        this.identity = identity;
-        this.device = device;
-        this.login = login;
-        this.password = password;
+        this.setId(id);
+        this.setIp(ip);
+        this.setIdentity(identity);
+        this.setDevice(device);
+        this.setLogin(login);
+        this.setPassword(password);
     }
 
     @SuppressWarnings("UnusedDeclaration")
