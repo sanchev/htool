@@ -4,13 +4,13 @@ import anonymous.base.Host;
 import anonymous.db.DBServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DBServiceImplTest {
 
@@ -40,6 +40,7 @@ public class DBServiceImplTest {
         assertEquals(expectedHosts, hosts);
     }
 
+    /*
     @Test(expected = HibernateException.class)
     public void testGetAllHosts_EXCEPTION() {
         LOGGER.info("testGetAllHosts_EXCEPTION()");
@@ -47,6 +48,7 @@ public class DBServiceImplTest {
         //no url
         dbService = new DBServiceImpl(DBServiceImpl.DBType.H2, "test", "", "");
     }
+    */
 
     @Test
     public void testAddHost() {
@@ -56,6 +58,44 @@ public class DBServiceImplTest {
         dbService.addHost(host);
 
         assertEquals(3, host.getId());
+    }
+
+    @Test
+    public void testGetById() {
+        LOGGER.info("testGetById");
+
+        long id = 2;
+
+        Host host = dbService.getById(id);
+        LOGGER.info(String.format("Host from db: %s", host));
+
+        DBServiceDummy dbServiceDummy = new DBServiceDummy();
+        Host expectedHost = dbServiceDummy.getById(id);
+        LOGGER.info(String.format("Expected host: %s", expectedHost));
+
+        assertEquals(expectedHost, host);
+    }
+
+    @Test
+    public void testUpdateHost() {
+        LOGGER.info("testUpdateHost");
+
+        Host host = new Host(2, "", "", "", "", "");
+        boolean result = dbService.updateHost(host);
+
+        assertTrue(result);
+        assertEquals(host, dbService.getById(host.getId()));
+    }
+
+    @Test
+    public void testDeleteHost() {
+        LOGGER.info("testDeleteHost");
+
+        Host host = new Host(2, "", "", "", "", "");
+        boolean result = dbService.deleteHost(host);
+
+        assertTrue(result);
+        assertEquals(1, dbService.getAllHosts().size());
     }
 
 }

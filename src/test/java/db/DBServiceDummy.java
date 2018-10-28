@@ -5,7 +5,6 @@ import anonymous.base.DBService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public final class DBServiceDummy implements DBService {
 
@@ -23,5 +22,21 @@ public final class DBServiceDummy implements DBService {
     public long addHost(Host host) {
         hosts.add(host);
         return hosts.size();
+    }
+
+    public Host getById(long id) {
+        for (Host host : hosts) {
+            if (host.getId() == id)
+                return host;
+        }
+        return null;
+    }
+
+    public boolean updateHost(Host host) {
+        return true;
+    }
+
+    public boolean deleteHost(Host host) {
+        return true;
     }
 }

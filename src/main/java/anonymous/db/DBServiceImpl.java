@@ -107,12 +107,12 @@ public class DBServiceImpl implements DBService {
                         .setFetchSize(FETCH_SIZE)
                         .scroll(ScrollMode.FORWARD_ONLY)
         ) {
-            Collection<Host> Hosts = new ArrayList<>();
+            Collection<Host> hosts = new ArrayList<>();
             while (scrollableResults.next()) {
-                Host Host = (Host) scrollableResults.get(0);
-                Hosts.add(Host);
+                Host host = (Host) scrollableResults.get(0);
+                hosts.add(host);
             }
-            return Hosts;
+            return hosts;
         } catch (HibernateException e) {
             LOGGER.error(e.getMessage());
             return null;
@@ -121,7 +121,7 @@ public class DBServiceImpl implements DBService {
 
     public long addHost(Host host) {
         long hostId = -1;
-        try (Session session = sessionFactory.openSession();) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             hostId = (long) session.save(host);
             host.setId(hostId);
@@ -130,6 +130,40 @@ public class DBServiceImpl implements DBService {
             LOGGER.error(e.getMessage());
         } finally {
             return hostId;
+        }
+    }
+
+    public Host getById(long id) {
+        try (Session session = sessionFactory.openSession()) {
+            Host host = (Host) session.get(Host.class, id);
+            return host;
+        } catch (HibernateException e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean updateHost(Host host) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.update(host);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            LOGGER.error(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deleteHost(Host host) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.delete(host);
+            session.getTransaction().commit();
+            return true;
+        } catch (HibernateException e) {
+            LOGGER.error(e.getMessage());
+            return false;
         }
     }
 }

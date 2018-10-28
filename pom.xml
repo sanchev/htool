@@ -4,7 +4,7 @@
 
 	<groupId>anonymous</groupId>
 	<artifactId>htool</artifactId>
-	<version>0.2.1</version>
+	<version>0.3.1</version>
 
 	<packaging>jar</packaging>
 	
