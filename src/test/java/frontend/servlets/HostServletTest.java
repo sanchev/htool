@@ -1,7 +1,7 @@
 package frontend.servlets;
 
 import anonymous.frontend.HostServiceImpl;
-import anonymous.frontend.servlets.HosttServlet;
+import anonymous.frontend.servlets.HostServlet;
 import db.DBServiceDummy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,19 +40,19 @@ public class HostServletTest {
     public void testDoPost_SC_OK() throws IOException, ServletException {
         LOGGER.info("testDoPost_SC_OK()");
 
-        Mockito.when(request.getParameter("identityFilter")).thenReturn("^.*[rk].*$");
+        Mockito.when(request.getParameter("identityFilter")).thenReturn("^.*[1].*$");
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         Mockito.when(response.getWriter()).thenReturn(printWriter);
-        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
-        hosttServlet.doPost(request, response);
+        HostServlet hostServlet = new HostServlet(new HostServiceImpl(new DBServiceDummy()));
+        hostServlet.doPost(request, response);
 
         verify(response).setContentType("application/json");
 
         String result = stringWriter.getBuffer().toString().trim();
         LOGGER.info(String.format("JSON: %s", result));
-        String expectedResult = "{\"hosts\":[{\"id\":1,\"ip\":\"10.0.7.183/32\",\"identity\":\"shved_nataljya\",\"device\":null,\"login\":\"admin\",\"password\":\"120960\"}]}";
+        String expectedResult = "{\"host\":[{\"id\":2,\"ip\":\"10.0.0.2\",\"identity\":\"host_2\",\"device\":null,\"login\":\"login_2\",\"password\":\"password_2\"}]}";
         LOGGER.info(String.format("JSON: %s", expectedResult));
         assertEquals(result, expectedResult);
 
@@ -63,8 +63,8 @@ public class HostServletTest {
     public void testDoPost_SC_BAD_REQUEST() throws IOException, ServletException {
         LOGGER.info("testDoPost_SC_BAD_REQUEST()");
 
-        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
-        hosttServlet.doPost(request, response);
+        HostServlet hostServlet = new HostServlet(new HostServiceImpl(new DBServiceDummy()));
+        hostServlet.doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
@@ -75,8 +75,8 @@ public class HostServletTest {
 
         Mockito.when(request.getParameter("identityFilter")).thenReturn("^.*$");
 
-        HosttServlet hosttServlet = new HosttServlet(new HostServiceImpl(new DBServiceDummy()));
-        hosttServlet.doPost(request, response);
+        HostServlet hostServlet = new HostServlet(new HostServiceImpl(new DBServiceDummy()));
+        hostServlet.doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
     }

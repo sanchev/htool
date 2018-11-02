@@ -1,56 +1,61 @@
 package anonymous.base;
 
 import com.google.gson.annotations.SerializedName;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Entity
-@Table(name = "hosts")
+@Table(name = "host")
 public class Host implements Serializable {
-    private static final String ID_TAG = "id";
+    private static final String HOST_ID_TAG = "host_id";
     private static final String IP_TAG = "ip";
     private static final String IDENTITY_TAG = "identity";
-    private static final String DEVICE_TAG = "device";
+    private static final String DEVICE_LIST_TAG = "deviceList";
     private static final String LOGIN_TAG = "login";
     private static final String PASSWORD_TAG = "password";
 
-    @SerializedName(ID_TAG)
+    @SerializedName(HOST_ID_TAG)
     @Id
-    @Column(name = "id")
+    @Column(name = HOST_ID_TAG)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @SerializedName(IP_TAG)
-    @Column(name = "ip")
+    @Column(name = IP_TAG)
     private String ip;
 
     @SerializedName(IDENTITY_TAG)
-    @Column(name = "identity")
+    @Column(name = IDENTITY_TAG)
     private String identity;
 
 
-    @SerializedName(DEVICE_TAG)
-    @Column(name = "device")
-    private String device;
+    @SerializedName(DEVICE_LIST_TAG)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "host", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Fetch(FetchMode.SELECT)
+    private List<Device> deviceList = new ArrayList<>();
 
     @SerializedName(LOGIN_TAG)
-    @Column(name = "login")
+    @Column(name = LOGIN_TAG)
     private String login;
 
     @SerializedName(PASSWORD_TAG)
-    @Column(name = "password")
+    @Column(name = PASSWORD_TAG)
     private String password;
 
     public Host() {
         this.setId(-1);
     }
 
-    public Host(long id, String ip, String identity, String device, String login, String password) {
+    public Host(long id, String ip, String identity, String login, String password) {
         this.setId(id);
         this.setIp(ip);
         this.setIdentity(identity);
-        this.setDevice(device);
         this.setLogin(login);
         this.setPassword(password);
     }
@@ -86,13 +91,8 @@ public class Host implements Serializable {
 
 
     @SuppressWarnings("UnusedDeclaration")
-    public String getDevice() {
-        return device;
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public void setDevice(String device) {
-        this.device = device;
+    public List<Device> getDeviceList() {
+        return deviceList;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -117,7 +117,14 @@ public class Host implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("id: %d\tip: %s\tdevice: %s\tlogin: %s\tpassword: %s", id, ip, device, login, password);
+        return "Host{" +
+                "id=" + id +
+                ", ip='" + ip + '\'' +
+                ", identity='" + identity + '\'' +
+                ", deviceList=" + deviceList +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 
     @Override
@@ -126,7 +133,9 @@ public class Host implements Serializable {
         int hash = prime + Long.valueOf(id).hashCode();
         hash = prime * hash + ((ip == null) ? 0 : ip.hashCode());
         hash = prime * hash + ((identity == null) ? 0 : identity.hashCode());
-        hash = prime * hash + ((device == null) ? 0 : device.hashCode());
+        if (deviceList != null)
+            for (Device device : deviceList)
+                hash = prime * hash + (device == null ? 0 : device.hashCode());
         hash = prime * hash + ((login == null) ? 0 : login.hashCode());
         hash = prime * hash + ((password == null) ? 0 : password.hashCode());
         return hash;
@@ -144,8 +153,26 @@ public class Host implements Serializable {
         return id == host.getId()
                 && (ip == host.getIp() || (ip != null && ip.equals(host.getIp())))
                 && (identity == host.getIdentity() || (identity != null && identity.equals(host.getIdentity())))
-                && (device == host.getDevice() || (device != null && device.equals(host.getDevice())))
+                && deviceListEquals(host.getDeviceList())
                 && (login == host.getLogin() || (login != null && login.equals(host.getLogin())))
                 && (password == host.getPassword() || (password != null && password.equals(host.getPassword())));
+    }
+
+    private boolean deviceListEquals(List<Device> devices) {
+        if (deviceList == devices)
+            return true;
+
+        Iterator<Device> deviceIterator1 = deviceList.iterator();
+        Iterator<Device> deviceIterator2 = devices.iterator();
+
+        while (deviceIterator1.hasNext() && deviceIterator2.hasNext()) {
+            Device device1 = deviceIterator1.next();
+            Device device2 = deviceIterator2.next();
+
+            if (!(device1 == null ? device2 == null : device1.equals(device2)))
+                return false;
+        }
+
+        return !(deviceIterator1.hasNext() || deviceIterator2.hasNext());
     }
 }

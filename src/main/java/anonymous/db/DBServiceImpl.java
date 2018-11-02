@@ -1,5 +1,6 @@
 package anonymous.db;
 
+import anonymous.base.Device;
 import anonymous.base.Host;
 import anonymous.base.DBService;
 import org.apache.logging.log4j.LogManager;
@@ -71,6 +72,7 @@ public class DBServiceImpl implements DBService {
         configuration.setProperty("hibernate.hbm2ddl.auto", HIBERNATE_HBM2DDL_AUTO);
 
         configuration.addAnnotatedClass(Host.class);
+        configuration.addAnnotatedClass(Device.class);
 
         return configuration;
     }

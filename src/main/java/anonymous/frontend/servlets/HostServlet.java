@@ -13,10 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 
-public class HosttServlet extends HttpServlet {
+public class HostServlet extends HttpServlet {
     private final HostService hosttService;
 
-    public HosttServlet(HostService contactService) {
+    public HostServlet(HostService contactService) {
         this.hosttService = contactService;
     }
 
@@ -32,7 +32,7 @@ public class HosttServlet extends HttpServlet {
                 GsonBuilder gsonBuilder = new GsonBuilder();
                 gsonBuilder.serializeNulls();
                 Gson gson = gsonBuilder.create();
-                json.add("hosts", gson.toJsonTree(hosts));
+                json.add("host", gson.toJsonTree(hosts));
                 response.getWriter().write(json.toString());
                 response.getWriter().flush();
                 response.setStatus(HttpServletResponse.SC_OK);

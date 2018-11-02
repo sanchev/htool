@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,27 +29,14 @@ public class HostServiceImplTest {
     }
 
     @Test
-    //  ^.*[rk].*$ - возвращает контакты, которые НЕ содержат букв r, k
-    public void testGetFilteredHosts_NOT_rk() {
-        LOGGER.info("testGetFilteredHosts_NOT_rk()");
+    //  ^.*[1].*$ - возвращает хосты, идентификаторы которых НЕ содержат цифру 1
+    public void testGetFilteredHosts_NOT_1() {
+        LOGGER.info("testGetFilteredHosts_NOT_1()");
         DBService dbService = new DBServiceDummy();
         HostServiceImpl hostService = new HostServiceImpl(dbService);
-        Collection<Host> filteredHosts = hostService.getFilteredHosts("^.*[rk].*$");
+        Collection<Host> filteredHosts = hostService.getFilteredHosts("^.*[1].*$");
         Collection<Host> expectedFilteredHosts = new ArrayList<>();
-        expectedFilteredHosts.add(new Host(1, "10.0.7.183/32", "shved_nataljya", null, "admin", "120960"));
-        assertEquals(filteredHosts, expectedFilteredHosts);
-    }
-
-
-    @Test
-    //  ^s.*$ - возвращает контакты, которые НЕ начинаются с s
-    public void testGetFilteredHosts_NOT_startWith_s() {
-        LOGGER.info("testGetFilteredHosts_NOT_startWith_s()");
-        DBService dbService = new DBServiceDummy();
-        HostServiceImpl contactService = new HostServiceImpl(dbService);
-        Collection<Host> filteredHosts = contactService.getFilteredHosts("^s.*$");
-        Collection<Host> expectedFilteredHosts = new ArrayList<>();
-        expectedFilteredHosts.add(new  Host(2, "10.0.7.186/32", "kurta_ivan", null, "admin", "120960"));
+        expectedFilteredHosts.add(((List<Host>) dbService.getAllHosts()).get(1));
         assertEquals(filteredHosts, expectedFilteredHosts);
     }
 }

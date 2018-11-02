@@ -80,7 +80,8 @@ public class DBServiceImplTest {
     public void testUpdateHost() {
         LOGGER.info("testUpdateHost");
 
-        Host host = new Host(2, "", "", "", "", "");
+        Host host = dbService.getById(2);
+        host.getDeviceList().clear();
         boolean result = dbService.updateHost(host);
 
         assertTrue(result);
@@ -91,7 +92,7 @@ public class DBServiceImplTest {
     public void testDeleteHost() {
         LOGGER.info("testDeleteHost");
 
-        Host host = new Host(2, "", "", "", "", "");
+        Host host = new Host(2, "", "", "", "");
         boolean result = dbService.deleteHost(host);
 
         assertTrue(result);
