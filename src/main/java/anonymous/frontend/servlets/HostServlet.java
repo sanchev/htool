@@ -1,6 +1,7 @@
 package anonymous.frontend.servlets;
 
 import anonymous.base.Host;
+import anonymous.serialization.AnnotationExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -31,6 +32,7 @@ public class HostServlet extends HttpServlet {
                 JsonObject json = new JsonObject();
                 GsonBuilder gsonBuilder = new GsonBuilder();
                 gsonBuilder.serializeNulls();
+                gsonBuilder.setExclusionStrategies(new AnnotationExclusionStrategy());
                 Gson gson = gsonBuilder.create();
                 json.add("host", gson.toJsonTree(hosts));
                 response.getWriter().write(json.toString());

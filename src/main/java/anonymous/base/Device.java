@@ -1,5 +1,6 @@
 package anonymous.base;
 
+import anonymous.serialization.Exclude;
 import com.google.gson.annotations.SerializedName;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ public class Device implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    //@SerializedName(JOIN_COLUMN_TAG)
+    @Exclude
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = JOIN_COLUMN_TAG, nullable = false)
     private Host host;
