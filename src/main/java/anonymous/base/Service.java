@@ -4,7 +4,6 @@ import anonymous.serialization.Exclude;
 import com.google.gson.annotations.SerializedName;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Table(name = "service")
@@ -27,7 +26,7 @@ public class Service {
 
     @SerializedName(PORT_TAG)
     @Column(name = PORT_TAG)
-    private String port;
+    private int port;
 
     @SerializedName(NAME_TAG)
     @Column(name = NAME_TAG)
@@ -36,7 +35,7 @@ public class Service {
     public Service() {
     }
 
-    public Service(long id, Device device, String port, String name) {
+    public Service(long id, Device device, int port, String name) {
         this.id = id;
         this.device = device;
         this.port = port;
@@ -59,11 +58,11 @@ public class Service {
         this.device = device;
     }
 
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
@@ -79,7 +78,7 @@ public class Service {
     public String toString() {
         return "Service{" +
                 "id=" + id +
-                ", port='" + port + '\'' +
+                ", port=" + port +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -88,7 +87,7 @@ public class Service {
     public int hashCode() {
         final int prime = 31;
         int hash = prime + Long.valueOf(id).hashCode();
-        hash = prime * hash + ((port == null) ? 0 : port.hashCode());
+        hash = prime * hash + Integer.valueOf(port).hashCode();
         hash = prime * hash + ((name == null) ? 0 : name.hashCode());
         return hash;
     }
@@ -104,7 +103,7 @@ public class Service {
         Service service = (Service) obj;
 
         return id == service.getId()
-                && (port == service.getPort() || (port != null && port.equals(service.getPort())))
+                && port == service.getPort()
                 && (name == service.getName() || (name != null && name.equals(service.getName())));
     }
 }

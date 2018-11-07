@@ -21,10 +21,10 @@ public final class DBServiceDummy implements DBService {
         Device device2 = new Device(2, host2, "vendor_2", "hardware_2", "software_2");
         Device device3 = new Device(3, host1, "vendor_3", "hardware_3", "software_3");
 
-        Service service1 = new Service(1, device1, "port_1", "name_1");
-        Service service2 = new Service(2, device2, "port_2", "name_2");
-        Service service3 = new Service(3, device2, "port_3", "name_3");
-        Service service4 = new Service(4, device3, "port_4", "name_4");
+        Service service1 = new Service(1, device1, 1, "name_1");
+        Service service2 = new Service(2, device2, 2, "name_2");
+        Service service3 = new Service(3, device2, 3, "name_3");
+        Service service4 = new Service(4, device3, 4, "name_4");
 
         List<Service> device1ServiceList = device1.getServiceList();
         device1ServiceList.add(service1);
