@@ -2,9 +2,14 @@ package anonymous.base;
 
 import anonymous.serialization.Exclude;
 import com.google.gson.annotations.SerializedName;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Entity
 @Table(name = "device")
@@ -14,6 +19,7 @@ public class Device implements Serializable {
     private static final String VENDOR_TAG = "vendor";
     private static final String HARDWARE_TAG = "hardware";
     private static final String SOFTWARE_TAG = "software";
+    private static final String SERVICE_LIST_TAG = "serviceList";
 
     @SerializedName(DEVICE_ID_TAG)
     @Id
@@ -37,6 +43,11 @@ public class Device implements Serializable {
     @SerializedName(SOFTWARE_TAG)
     @Column(name = SOFTWARE_TAG)
     private String software;
+
+    @SerializedName(SERVICE_LIST_TAG)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "device", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Fetch(FetchMode.SELECT)
+    private List<Service> serviceList = new ArrayList<>();
 
     public Device() {
     }
@@ -89,6 +100,10 @@ public class Device implements Serializable {
         this.software = software;
     }
 
+    public List<Service> getServiceList() {
+        return serviceList;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
@@ -96,6 +111,7 @@ public class Device implements Serializable {
                 ", vendor='" + vendor + '\'' +
                 ", hardware='" + hardware + '\'' +
                 ", software='" + software + '\'' +
+                ", serviceList=" + serviceList +
                 '}';
     }
 
@@ -106,6 +122,9 @@ public class Device implements Serializable {
         hash = prime * hash + ((vendor == null) ? 0 : vendor.hashCode());
         hash = prime * hash + ((hardware == null) ? 0 : hardware.hashCode());
         hash = prime * hash + ((software == null) ? 0 : software.hashCode());
+        if (serviceList != null)
+            for (Service service : serviceList)
+                hash = prime * hash + (service == null ? 0 : service.hashCode());
         return hash;
     }
 
@@ -121,6 +140,25 @@ public class Device implements Serializable {
         return id == device.getId()
                 && (vendor == device.getVendor() || (vendor != null && vendor.equals(device.getVendor())))
                 && (hardware == device.getHardware() || (hardware != null && hardware.equals(device.getHardware())))
-                && (software == device.getSoftware() || (software != null && software.equals(device.getSoftware())));
+                && (software == device.getSoftware() || (software != null && software.equals(device.getSoftware())))
+                && serviceListEquals(device.getServiceList());
+    }
+
+    private boolean serviceListEquals(List<Service> services) {
+        if (serviceList == services)
+            return true;
+
+        Iterator<Service> serviceIterator1 = serviceList.iterator();
+        Iterator<Service> serviceIterator2 = services.iterator();
+
+        while (serviceIterator1.hasNext() && serviceIterator2.hasNext()) {
+            Service service1 = serviceIterator1.next();
+            Service service2 = serviceIterator2.next();
+
+            if (!(service1 == null ? service2 == null : service1.equals(service2)))
+                return false;
+        }
+
+        return !(serviceIterator1.hasNext() || serviceIterator2.hasNext());
     }
 }

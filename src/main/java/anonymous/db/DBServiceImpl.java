@@ -3,6 +3,7 @@ package anonymous.db;
 import anonymous.base.Device;
 import anonymous.base.Host;
 import anonymous.base.DBService;
+import anonymous.base.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
@@ -73,6 +74,7 @@ public class DBServiceImpl implements DBService {
 
         configuration.addAnnotatedClass(Host.class);
         configuration.addAnnotatedClass(Device.class);
+        configuration.addAnnotatedClass(Service.class);
 
         return configuration;
     }

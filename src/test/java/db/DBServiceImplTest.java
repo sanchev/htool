@@ -1,5 +1,6 @@
 package db;
 
+import anonymous.base.Device;
 import anonymous.base.Host;
 import anonymous.db.DBServiceImpl;
 import org.apache.logging.log4j.LogManager;
@@ -8,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -80,9 +82,17 @@ public class DBServiceImplTest {
     public void testUpdateHost() {
         LOGGER.info("testUpdateHost");
 
-        Host host = dbService.getById(2);
+        Host host = dbService.getById(1);
         host.getDeviceList().clear();
         boolean result = dbService.updateHost(host);
+
+        assertTrue(result);
+        assertEquals(host, dbService.getById(host.getId()));
+
+        host = dbService.getById(2);
+        List<Device> deviceList = host.getDeviceList();
+        deviceList.get(0).getServiceList().clear();
+        result = dbService.updateHost(host);
 
         assertTrue(result);
         assertEquals(host, dbService.getById(host.getId()));

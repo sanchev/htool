@@ -51,9 +51,9 @@ public class HostServletTest {
         verify(response).setContentType("application/json");
 
         String result = stringWriter.getBuffer().toString().trim();
-        LOGGER.info(String.format("JSON: %s", result));
-        String expectedResult = "{\"host\":[{\"host_id\":2,\"ip\":\"10.0.0.2\",\"identity\":\"host_2\",\"deviceList\":[{\"device_id\":2,\"vendor\":\"vendor_2\",\"hardware\":\"hardware_2\",\"software\":\"software_2\"}],\"login\":\"login_2\",\"password\":\"password_2\"}]}";
-        LOGGER.info(String.format("JSON: %s", expectedResult));
+        LOGGER.info(String.format("Actual JSON: %s", result));
+        String expectedResult = "{\"host\":[{\"host_id\":2,\"ip\":\"10.0.0.2\",\"identity\":\"host_2\",\"deviceList\":[{\"device_id\":2,\"vendor\":\"vendor_2\",\"hardware\":\"hardware_2\",\"software\":\"software_2\",\"serviceList\":[{\"service_id\":2,\"port\":\"port_2\",\"name\":\"name_2\"},{\"service_id\":3,\"port\":\"port_3\",\"name\":\"name_3\"}]}],\"login\":\"login_2\",\"password\":\"password_2\"}]}";
+        LOGGER.info(String.format("Expected JSON: %s", expectedResult));
         assertEquals(result, expectedResult);
 
         verify(response).setStatus(HttpServletResponse.SC_OK);
