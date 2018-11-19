@@ -1,4 +1,4 @@
-package anonymous.serialization.nmap;;
+package anonymous.serialization.nmap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;

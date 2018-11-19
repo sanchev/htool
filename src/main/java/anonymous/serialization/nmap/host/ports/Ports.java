@@ -22,6 +22,10 @@ public class Ports {
         this.portList = portList;
     }
 
+    public List<Port> getPortList() {
+        return portList;
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();

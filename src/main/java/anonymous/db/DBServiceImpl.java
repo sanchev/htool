@@ -139,7 +139,7 @@ public class DBServiceImpl implements DBService {
 
     public Host getById(long id) {
         try (Session session = sessionFactory.openSession()) {
-            Host host = (Host) session.get(Host.class, id);
+            Host host = session.get(Host.class, id);
             return host;
         } catch (HibernateException e) {
             LOGGER.error(e.getMessage());

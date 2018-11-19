@@ -21,6 +21,10 @@ public class Address {
         this.addr = addr;
     }
 
+    public String getAddr() {
+        return addr;
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();

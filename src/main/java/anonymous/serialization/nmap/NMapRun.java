@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "nmaprun")
-public class NmapRun {
+public class NMapRun {
     @XmlAttribute(name = "start")
     private String start;
     @XmlAttribute(name = "profile_name")
@@ -38,11 +38,11 @@ public class NmapRun {
     @XmlElement(name = "runstats")
     private Runstats runstats;
 
-    public NmapRun() {
+    public NMapRun() {
         hostList = new ArrayList<>();
     }
 
-    public NmapRun(
+    public NMapRun(
             String start,
             String profile_name,
             String xmloutputversion,
@@ -70,6 +70,10 @@ public class NmapRun {
         this.output = output;
         this.hostList = hostList;
         this.runstats = runstats;
+    }
+
+    public List<Host> getHostList() {
+        return hostList;
     }
 
     @Override

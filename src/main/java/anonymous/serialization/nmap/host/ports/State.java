@@ -21,6 +21,10 @@ public class State {
         this.reason_ttl = reason_ttl;
     }
 
+    public String getState() {
+        return state;
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();

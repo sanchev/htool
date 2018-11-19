@@ -104,6 +104,10 @@ public class Device implements Serializable {
         return serviceList;
     }
 
+    public void setServiceList(List<Service> serviceList) {
+        this.serviceList = serviceList;
+    }
+
     @Override
     public String toString() {
         return "Device{" +

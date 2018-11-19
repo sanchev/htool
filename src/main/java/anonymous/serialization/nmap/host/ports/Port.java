@@ -9,7 +9,7 @@ public class Port {
     @XmlAttribute(name = "protocol")
     private String protocol;
     @XmlAttribute(name = "portid")
-    private String portid;
+    private int portid;
     @XmlElement(name = "state")
     private State state;
     @XmlElement(name = "service")
@@ -18,11 +18,23 @@ public class Port {
     public Port() {
     }
 
-    public Port(String protocol, String portid, State state, Service service) {
+    public Port(String protocol, int portid, State state, Service service) {
         this.protocol = protocol;
         this.portid = portid;
         this.state = state;
         this.service = service;
+    }
+
+    public int getPortid() {
+        return portid;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public Service getService() {
+        return service;
     }
 
     @Override

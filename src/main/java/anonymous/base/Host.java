@@ -89,10 +89,14 @@ public class Host implements Serializable {
         this.ip = ip;
     }
 
-
     @SuppressWarnings("UnusedDeclaration")
     public List<Device> getDeviceList() {
         return deviceList;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setDeviceList(List<Device> deviceList) {
+        this.deviceList = deviceList;
     }
 
     @SuppressWarnings("UnusedDeclaration")

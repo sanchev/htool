@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<nmaprun start="" profile_name="" xmloutputversion="" scanner="" version="" startstr="" args="">
+	<scaninfo services="" protocol="" numservices="" type=""></scaninfo>
+	<verbose level=""></verbose>
+	<debugging level=""></debugging>
+	<output type=""></output>
+	<!--quantifiers
+		*   - 0 or more
+		+   - 1 or more
+		?   - 0 or 1
+		{1} - exactly 1
+	-->
+	<!--host*-->
+	<host comment="">
+		<status state=""></status>
+		<address addrtype="" vendor="" addr=""></address>
+		<hostnames></hostnames>
+		<ports>
+			<!--extraports+-->
+			<extraports count="" state=""></extraports>
+			<!--port*-->
+			<port protocol="" portid="-1">
+				<state reason="" state="" reason_ttl=""></state>
+				<!--service
+					product?
+					name{1)
+					extrainfo?
+					version?
+					conf{1}
+					method{1}
+				-->
+				<service product="" name="" extrainfo="" version="" conf="" method=""></service>
+			</port>
+		</ports>
+		<os>
+			<!--portused*-->
+			<portused state="" portid="" proto=""></portused>
+			<!--osmatch*-->
+			<osmatch line="" name="" accuracy="">
+				<osclass type="" osfamily="" vendor="" osgen="" accuracy=""></osclass>
+			</osmatch>
+		</os>
+		<uptime lastboot="" seconds=""></uptime>
+		<tcpsequence index="" values="" difficulty=""></tcpsequence>
+		<ipidsequence values="" class=""></ipidsequence>
+		<tcptssequence values="" class=""></tcptssequence>
+		<trace port="" proto="">
+			<!--hop+-->
+			<hop rtt="" host="" ipaddr="" ttl=""></hop>
+		</trace>
+	</host>
+	<runstats>
+		<finished timestr="" time=""></finished>
+		<hosts down="" total="" up=""></hosts>
+	</runstats>
+</nmaprun>

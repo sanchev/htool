@@ -22,7 +22,7 @@ public class HostServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String identityFilter = request.getParameter("identityFilter");
         if (identityFilter != null) {
             Collection<Host> hosts = hosttService.getFilteredHosts(identityFilter);

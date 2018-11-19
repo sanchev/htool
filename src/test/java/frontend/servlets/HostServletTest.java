@@ -32,7 +32,7 @@ public class HostServletTest {
     HttpServletResponse response;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 

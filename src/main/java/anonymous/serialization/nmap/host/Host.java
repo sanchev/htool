@@ -61,6 +61,14 @@ public class Host {
         this.trace = trace;
     }
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public Ports getPorts() {
+        return ports;
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();

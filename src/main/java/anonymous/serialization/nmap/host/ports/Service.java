@@ -30,6 +30,10 @@ public class Service {
         this.method = method;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
