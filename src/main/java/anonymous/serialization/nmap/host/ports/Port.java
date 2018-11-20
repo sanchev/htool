@@ -42,8 +42,7 @@ public class Port {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("\n\t\t\t")
-                .append("<port")
-                .append("protocol=\"")
+                .append("<port protocol=\"")
                 .append(protocol)
                 .append("\" portid=\"")
                 .append(portid)

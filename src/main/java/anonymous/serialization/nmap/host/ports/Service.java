@@ -51,7 +51,7 @@ public class Service {
                 .append(conf)
                 .append("\" method=\"")
                 .append(method)
-                .append("></service>");
+                .append("\"></service>");
         return stringBuilder.toString();
     }
 }

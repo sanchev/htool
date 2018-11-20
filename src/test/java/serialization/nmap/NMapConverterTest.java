@@ -23,7 +23,7 @@ public class NMapConverterTest {
 
     @Before
     public void before() {
-        String filePath = "src/test/resources/nmap-test2.xml";
+        String filePath = "src/test/resources/nmap-test.xml";
         File file = new File(filePath);
         NMapRun nmapRun = XMLNMapSerializer.unserialize(file);
         nmapConverter = new NMapConverter(nmapRun);
