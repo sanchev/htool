@@ -17,9 +17,9 @@ public final class DBServiceDummy implements DBService {
         Host host1 = new Host(1, "10.0.0.1", "host_1", "login_1", "password_1");
         Host host2 = new Host(2, "10.0.0.2", "host_2", "login_2", "password_2");
 
-        Device device1 = new Device(1, host1, "vendor_1", "hardware_1", "software_1");
-        Device device2 = new Device(2, host2, "vendor_2", "hardware_2", "software_2");
-        Device device3 = new Device(3, host1, "vendor_3", "hardware_3", "software_3");
+        Device device1 = new Device(1, host1, "vendor_1", "hardware_1", "software_1", "addition_1");
+        Device device2 = new Device(2, host2, "vendor_2", "hardware_2", "software_2", "addition_2");
+        Device device3 = new Device(3, host1, "vendor_3", "hardware_3", "software_3", "addition_3");
 
         Service service1 = new Service(1, device1, 1, "name_1");
         Service service2 = new Service(2, device2, 2, "name_2");

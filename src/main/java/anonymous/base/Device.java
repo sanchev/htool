@@ -20,6 +20,7 @@ public class Device implements Serializable {
     private static final String HARDWARE_TAG = "hardware";
     private static final String SOFTWARE_TAG = "software";
     private static final String SERVICE_LIST_TAG = "serviceList";
+    private static final String ADDITION_TAG = "addition";
 
     @SerializedName(DEVICE_ID_TAG)
     @Id
@@ -49,15 +50,20 @@ public class Device implements Serializable {
     @Fetch(FetchMode.SELECT)
     private List<Service> serviceList = new ArrayList<>();
 
+    @SerializedName(ADDITION_TAG)
+    @Column(name = ADDITION_TAG)
+    private String addition;
+
     public Device() {
     }
 
-    public Device(long id, Host host, String vendor, String hardware, String software) {
+    public Device(long id, Host host, String vendor, String hardware, String software, String addition) {
         this.id = id;
         this.host = host;
         this.vendor = vendor;
         this.hardware = hardware;
         this.software = software;
+        this.addition = addition;
     }
 
     public long getId() {
@@ -108,6 +114,14 @@ public class Device implements Serializable {
         this.serviceList = serviceList;
     }
 
+    public String getAddition() {
+        return addition;
+    }
+
+    public void setAddition(String addition) {
+        this.addition = addition;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
@@ -116,6 +130,7 @@ public class Device implements Serializable {
                 ", hardware='" + hardware + '\'' +
                 ", software='" + software + '\'' +
                 ", serviceList=" + serviceList +
+                ", addition='" + addition + '\'' +
                 '}';
     }
 
@@ -129,6 +144,7 @@ public class Device implements Serializable {
         if (serviceList != null)
             for (Service service : serviceList)
                 hash = prime * hash + (service == null ? 0 : service.hashCode());
+        hash = prime * hash + ((addition == null) ? 0 : addition.hashCode());
         return hash;
     }
 
@@ -145,7 +161,8 @@ public class Device implements Serializable {
                 && (vendor == device.getVendor() || (vendor != null && vendor.equals(device.getVendor())))
                 && (hardware == device.getHardware() || (hardware != null && hardware.equals(device.getHardware())))
                 && (software == device.getSoftware() || (software != null && software.equals(device.getSoftware())))
-                && serviceListEquals(device.getServiceList());
+                && serviceListEquals(device.getServiceList())
+                && (addition == device.getAddition() || (addition!= null && addition.equals(device.getAddition())));
     }
 
     private boolean serviceListEquals(List<Service> services) {
