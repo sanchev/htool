@@ -48,7 +48,7 @@ public class MikroTikTerminator {
                 LOGGER.info("Logged on " + ip);
                 Map<String, List<Map<String, String>>> executeCmdListResult = new HashMap<>();
                 for (String cmd : cmdList) {
-                    List<Map<String, String>> executeCmdResult = terminal.execute(cmd);
+                    List<Map<String, String>> executeCmdResult = (List<Map<String, String>>) terminal.execute(cmd);
                     executeCmdListResult.put(cmd, executeCmdResult);
                 }
                 if (terminal.disconnect()) {

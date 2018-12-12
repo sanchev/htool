@@ -17,7 +17,7 @@ public class MikroTikTerminatorTest {
         LOGGER.info("testExecute()");
         List<Host> hostList = new ArrayList<>();
         Host host1 = new Host();
-        host1.setIp("10.0.8.45");
+        host1.setIp("10.0.8.47");
         host1.setLogin("admin");
         host1.setPassword("120960");
         hostList.add(host1);
