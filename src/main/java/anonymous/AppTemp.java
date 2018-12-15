@@ -15,7 +15,7 @@ import static java.lang.Thread.sleep;
 public class AppTemp {
     private static final Logger LOGGER = LogManager.getLogger(AppTemp.class.getName());
 
-    private static final String HOST = "10.0.8.68";
+    private static final String HOST = "10.0.8.47";
 
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "120960";
@@ -67,7 +67,7 @@ public class AppTemp {
         String scriptName = "disableLog";
         String fileName = scriptName + ".rsc";
 
-        ftpTerminal.execute("upload", "r " + fileName, "l " + LOCAL_PATH + fileName);
+        ftpTerminal.execute("upload", "-r", fileName, "-l", LOCAL_PATH + fileName);
 
         sleep(2000);
 
@@ -99,7 +99,7 @@ public class AppTemp {
 
         String fileName = "routeros-mipsbe-6.18.npk";
 
-        ftpTerminal.execute("upload", "r " + fileName, "l " + LOCAL_PATH + fileName);
+        ftpTerminal.execute("upload", "-r ", fileName, "-l", LOCAL_PATH + fileName);
 
         String cmd = "/system/reboot";
         mikroTikTerminal.execute(cmd);
