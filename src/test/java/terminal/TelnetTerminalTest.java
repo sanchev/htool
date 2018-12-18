@@ -1,73 +1,45 @@
 package terminal;
 
-import anonymous.terminal.FTPTerminal;
+import anonymous.terminal.TelnetTerminal;
 import anonymous.terminal.Terminal;
-import com.beust.jcommander.ParameterException;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class FTPTerminalTest {
-    private static final Logger LOGGER = LogManager.getLogger(FTPTerminalTest.class.getName());
+public class TelnetTerminalTest {
+    private static final Logger LOGGER = LogManager.getLogger(TelnetTerminalTest.class.getName());
 
-    private static Terminal terminal = new FTPTerminal();
+    private static Terminal terminal = new TelnetTerminal("Login: ", "Password: ", "\\[.+@.+\\][^>]+[>]+ ");
     private static String host = "10.0.8.47";
     private static String username = "admin";
     private static String password = "120960";
 
-    @Before
-    public void before() {
-        terminal.connect(host, FTPTerminal.DEFAULT_PORT, username, password);
-    }
-
-    @After
-    public void after() {
-        terminal.disconnect();
-    }
-
     @Test
-    public void testExecute() throws IOException {
+    public void testExecute() {
         LOGGER.info("testExecute()");
 
-        String expectedFilePath = "src/test/resources/ftp-test";
-        String actualFilePath = expectedFilePath + "-download";
-        String remoteFilePath = "ftp-test";
+        assertTrue(terminal.connect(host, TelnetTerminal.DEFAULT_PORT, username, password));
 
-        assertTrue((Boolean) terminal.execute("upload", "-r", remoteFilePath, "-l", expectedFilePath));
+        ArrayList<String> executeResults = (ArrayList<String>) terminal.execute("system resource print");
 
-        File downLoad = (File) terminal.execute("download", "-r", remoteFilePath, "-l", actualFilePath);
-        assertTrue(FileUtils.contentEquals(downLoad, new File(expectedFilePath)));
+        String platform = null;
+        for (String executeResult : executeResults) {
+            LOGGER.info(executeResult);
+            if (executeResult.contains("platform")) {
+                platform = executeResult;
+            }
+        }
 
-        assertTrue(downLoad.delete());
-        assertTrue((Boolean) terminal.execute("delete", "-r", remoteFilePath));
-    }
+        assertNotNull(platform);
 
-    @Test(expected = ParameterException.class)
-    public void testExecute_EXCEPTION_WRONG_COMMAND() {
-        LOGGER.info("testExecute_EXCEPTION_WRONG_COMMAND()");
-        //wrong command
-        terminal.execute("wrong", "-r", "abc");
-    }
 
-    @Test(expected = ParameterException.class)
-    public void testExecute_EXCEPTION_NO_REMOTE() {
-        LOGGER.info("testExecute_EXCEPTION_NO_REMOTE");
-        //wrong command
-        terminal.execute("upload");
-    }
+        assertTrue(platform.contains("MikroTik"));
 
-    @Test(expected = ParameterException.class)
-    public void testExecute_EXCEPTION_NO_LOCAL() {
-        LOGGER.info("testExecute_EXCEPTION_NO_LOCAL");
-        //wrong command
-        terminal.execute("upload", "-r", "test");
+        assertTrue(terminal.disconnect());
     }
 }
