@@ -1,5 +1,6 @@
 package anonymous.terminal;
 
+import com.beust.jcommander.JCommander;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,18 +12,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TelnetTerminal implements Terminal {
     public static final int DEFAULT_PORT = 23;
     private static final Logger LOGGER = LogManager.getLogger(TelnetTerminal.class.getName());
-    private TelnetClient telnetClient;
-
-    private InputStream in;
-    private OutputStream out;
-
     private String loginPattern;
     private String passwordPattern;
     private String cmdPattern;
+    private TelnetClient telnetClient;
+    private InputStream in;
+    private OutputStream out;
 
     public TelnetTerminal(String loginPattern, String passwordPattern, String cmdPattern) {
         this.loginPattern = loginPattern;
@@ -63,36 +65,137 @@ public class TelnetTerminal implements Terminal {
 
     @Override
     public Object execute(String... args) {
+        TelnetTerminalArgs telnetTerminalArgs = new TelnetTerminalArgs();
+        JCommander
+                .newBuilder()
+                .addObject(telnetTerminalArgs)
+                .build()
+                .parse(args);
+        String cmd = telnetTerminalArgs.getCmd();
+        String startPattern = telnetTerminalArgs.getStartPattern();
+        String endPattern = telnetTerminalArgs.getEndPattern();
 
+        StringBuilder stringBuilder;
         try {
-            StringBuilder stringBuilder = doCMD(cmdPattern, args[0]);
-            stringBuilder.append(getResult(cmdPattern));
+            if (startPattern == null && endPattern == null) {
+                stringBuilder = doCMD(cmdPattern, cmd);
+                stringBuilder.append(getResult(cmdPattern));
 
-            String result = stringBuilder.toString();
-            result = result.replaceAll("\r", "\n");
-            String pattern = new StringBuilder(cmdPattern).append(".*").toString();
-            result = result.replaceAll(pattern, "");
-            result = result.replaceAll("\n[\n]+", "\n");
-            result = result.replaceAll("^\n", "");
-            return new ArrayList<String>(Arrays.asList(result.split("\n")));
+                stringBuilder = removePattern(stringBuilder, cmdPattern);
+
+                return convertToList(stringBuilder);
+            } else if (startPattern != null && endPattern == null) {
+                stringBuilder = doCMD(startPattern, cmd);
+                stringBuilder.append(getResult(cmdPattern));
+
+                stringBuilder = removePattern(stringBuilder, cmdPattern);
+                stringBuilder = removePattern(stringBuilder, startPattern);
+
+                return convertToList(stringBuilder);
+            } else if (startPattern == null) {
+                stringBuilder = doCMD(cmdPattern, cmd);
+                stringBuilder.append(getResult(endPattern));
+
+                stringBuilder = removePattern(stringBuilder, cmdPattern);
+                stringBuilder = removePattern(stringBuilder, endPattern);
+
+                return convertToList(stringBuilder);
+            } else {
+                stringBuilder = doCMD(startPattern, cmd);
+                stringBuilder.append(getResult(endPattern));
+
+                stringBuilder = removePattern(stringBuilder, startPattern);
+                stringBuilder = removePattern(stringBuilder, endPattern);
+
+                return convertToList(stringBuilder);
+            }
+
+
         } catch (IOException | InterruptedException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private String receive() throws IOException, InterruptedException {
-        StringBuffer strBuffer = new StringBuffer();
+    private StringBuilder removePattern(StringBuilder stringBuilder, String pattern) {
+        return new StringBuilder(stringBuilder.toString().replaceAll(pattern + ".*", ""));
+    }
+
+    private Object convertToList(StringBuilder stringBuilder) {
+        String result = stringBuilder.toString().replaceAll("\r", "\n");
+        result = result.replaceAll("\n[\n]+", "\n");
+        result = result.replaceAll("^\n", "");
+        return new ArrayList<>(Arrays.asList(result.split("\n")));
+    }
+
+    private StringBuilder doCMD(String pattern, String cmd) throws IOException, InterruptedException {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (true) {
+            stringBuilder.append(receiveString());
+            String[] results = stringBuilder.toString().replaceAll("\r", "\n").replaceAll("\n[\n]+", "\n").replaceAll("^\n", "").split("\n");
+            for (String result : results) {
+                Pattern p = Pattern.compile(pattern + "$");
+                Matcher m = p.matcher(result);
+                if (m.find()) {
+                    send(cmd);
+                    return stringBuilder;
+                }
+            }
+        }
+    }
+
+    private String getResult(String endPattern) throws IOException, InterruptedException {
+        in.mark(0);
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean match = false;
+        int matchIndex = -1;
+        while (!match) {
+            stringBuilder.append(receiveString());
+            String[] results = stringBuilder.toString().replaceAll("\r", "\n").replaceAll("\n[\n]+", "\n").replaceAll("^\n", "").split("\n");
+            for (int i = 0; i < results.length; i++) {
+                if (results[i].matches(endPattern + "$")) {
+                    in.reset();
+                    match = true;
+                    matchIndex = i;
+                }
+            }
+        }
+        match = false;
+        stringBuilder = new StringBuilder();
+        while (!match) {
+            stringBuilder.append(receiveChar());
+            String[] results = stringBuilder.toString().replaceAll("\r", "\n").replaceAll("\n[\n]+", "\n").replaceAll("^\n", "").split("\n");
+            for (int i = 0; i < results.length; i++) {
+                if (i == matchIndex) {
+                    in.reset();
+                    stringBuilder.setLength(stringBuilder.length() - 1);
+                    match = true;
+                }
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private String receiveString() throws IOException, InterruptedException {
+        StringBuilder stringBuilder = new StringBuilder();
         byte[] buf = new byte[512];
         int len;
         Thread.sleep(750L);
         while ((len = in.read(buf)) != 0) {
-            strBuffer.append(new String(buf, 0, len));
+            stringBuilder.append(new String(buf, 0, len));
             //Thread.sleep(750L);
             if (in.available() == 0)
                 break;
         }
-        return strBuffer.toString();
+        return stringBuilder.toString();
+    }
+
+    private char receiveChar() throws IOException {
+        if (in.available() > 0) {
+            in.mark(0);
+            return (char) in.read();
+        }
+        return '\u0000';
     }
 
     private void send(String data) throws IOException {
@@ -101,27 +204,10 @@ public class TelnetTerminal implements Terminal {
         out.flush();
     }
 
-    private StringBuilder doCMD(String pattern, String cmd) throws IOException, InterruptedException {
-        StringBuilder stringBuilder = new StringBuilder();
-        while (true) {
-            stringBuilder.append(receive());
-            String[] results = stringBuilder.toString().replaceAll("\r", "\n").replaceAll("\n[\n]+", "\n").replaceAll("^\n", "").split("\n");
-            for (String result : results) {
-                if (result.matches(pattern +"$")) {
-                    send(cmd);
-                    return stringBuilder;
-                }
-            }
-        }
-    }
-
-    private StringBuilder getResult(String pattern) throws IOException, InterruptedException {
-        return doCMD(pattern, "");
-    }
-
+    @SuppressWarnings("UnusedDeclaration")
     private void changeLoggerConfig(String fileName) {
         LoggerContext context = (LoggerContext) LogManager.getContext(false);
-        File file = new File(getClass().getClassLoader().getResource(fileName).getFile());
+        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).getFile());
         context.setConfigLocation(file.toURI());
     }
 }
