@@ -25,6 +25,8 @@ public class TelnetTerminal implements Terminal {
     private TelnetClient telnetClient;
     private InputStream in;
     private OutputStream out;
+    private boolean connected = false;
+
 
     public TelnetTerminal(String loginPattern, String passwordPattern, String cmdPattern) {
         this.loginPattern = loginPattern;
@@ -45,7 +47,9 @@ public class TelnetTerminal implements Terminal {
             doCMD(passwordPattern, password);
             getResult(cmdPattern);
 
-            return true;
+            connected = true;
+
+            return connected;
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return false;
@@ -56,6 +60,7 @@ public class TelnetTerminal implements Terminal {
     public boolean disconnect() {
         try {
             telnetClient.disconnect();
+            connected = false;
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             return false;
@@ -209,5 +214,9 @@ public class TelnetTerminal implements Terminal {
         LoggerContext context = (LoggerContext) LogManager.getContext(false);
         File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).getFile());
         context.setConfigLocation(file.toURI());
+    }
+
+    public boolean isConnected(){
+        return connected;
     }
 }
