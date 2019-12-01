@@ -1,7 +1,6 @@
-package anonymous.serialization.nmap;
+package anonymous.serialization;
 
 import anonymous.base.Host;
-import anonymous.serialization.Serializer;
 import anonymous.serialization.nmap.converter.AddressValidator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;

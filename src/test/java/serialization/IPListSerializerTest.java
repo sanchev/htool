@@ -1,7 +1,7 @@
 package serialization;
 
 import anonymous.base.Host;
-import anonymous.serialization.nmap.IPListSerializer;
+import anonymous.serialization.IPListSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
