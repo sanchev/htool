@@ -1,65 +1,85 @@
-package anonymous.terminal;
+package anonymous.terminal
 
-import anonymous.base.Device;
-import anonymous.base.Host;
-import anonymous.base.Service;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import anonymous.base.Device
+import anonymous.base.Host
+import anonymous.base.Service
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
-import java.util.*;
 
-public class MikroTikTerminator {
-    private static final Logger LOGGER = LogManager.getLogger(MikroTikTerminator.class.getName());
+class MikroTikTerminator(private val host: Host) : Runnable {
 
-    private List<Host> hostList;
-    private List<String> cmdList;
+    private var ip: String? = null
+    private var username: String? = null
+    private var password: String? = null
 
-    public MikroTikTerminator(List<Host> hostList, List<String> cmdList) {
-        this.hostList = hostList;
-        this.cmdList = cmdList;
-    }
-
-    public Map<String, Map<String, List<Map<String, String>>>> execute() {
-        Map<String, Map<String, List<Map<String, String>>>> result = new HashMap<>();
-        for (Host host : hostList) {
-            Terminal terminal = new MikroTikTerminal();
-            String ip = host.getIp();
-            String username = host.getLogin();
-            String password = host.getPassword();
-            int port = MikroTikTerminal.DEFAULT_PORT;
-            Device mikroTikDevice = null;
-            for (Device device : host.getDeviceList()) {
-                if ("MikroTik".equals(device.getVendor())) {
-                    mikroTikDevice = device;
-                    break;
-                }
-            }
-            if (mikroTikDevice != null) {
-                if (!mikroTikDevice.getServiceList().isEmpty()) {
-                    for (Service service : mikroTikDevice.getServiceList()) {
-                        if ("api".equals(service.getName())) {
-                            port = service.getPort();
-                            break;
-                        }
+    override fun run() {
+        ip = host.ip
+        username = host.login
+        password = host.password
+        for (device in host.deviceList) {
+            if ("MikroTik" == device.vendor) {
+                var apiPort = MikroTikTerminal.DEFAULT_PORT
+                var telnetPort = TelnetTerminal.DEFAULT_PORT
+                var ftpPort = FTPTerminal.DEFAULT_PORT
+                if (!device.serviceList.isEmpty()) {
+                    for (service in device.serviceList) {
+                        if ("api" == service.name)
+                            apiPort = service.port
+                        if ("telnet" == service.name)
+                            telnetPort = service.port
+                        if ("ftp" == service.name)
+                            ftpPort = service.port
                     }
                 }
+                val mikroTikTerminal = MikroTikTerminal()
+                val telnetTerminal = TelnetTerminal(LOGIN_PATTERN, PASSWORD_PATTERN, CMD_PATTERN)
+                val ftpTerminal = FTPTerminal()
+
+                val connected = connect(mikroTikTerminal, apiPort, telnetTerminal, telnetPort, ftpTerminal, ftpPort)
+
+                if (connected) {
+                    LOGGER.info("Logged on " + ip!!)
+
+                    //do something
+
+                    if (disconnect(mikroTikTerminal, telnetTerminal, ftpTerminal)) {
+                        LOGGER.info("Logout from " + ip!!)
+                    }
+                } else {
+                    LOGGER.info("NOT logged on $ip. Try again.")
+                }
             }
-            if (terminal.connect(ip, port, username, password)) {
-                LOGGER.info("Logged on " + ip);
-                Map<String, List<Map<String, String>>> executeCmdListResult = new HashMap<>();
-                for (String cmd : cmdList) {
-                    List<Map<String, String>> executeCmdResult = (List<Map<String, String>>) terminal.execute(cmd);
-                    executeCmdListResult.put(cmd, executeCmdResult);
-                }
-                if (terminal.disconnect()) {
-                    LOGGER.info("Logout from " + ip);
-                }
-                result.put(ip, executeCmdListResult);
+        }
+    }
+
+    private fun connect(mikroTikTerminal: MikroTikTerminal, apiPort: Int, telnetTerminal: TelnetTerminal, telnetPort: Int, ftpTerminal: FTPTerminal, ftpPort: Int): Boolean {
+        var connected = mikroTikTerminal.connect(ip, apiPort, username, password)
+        if (!connected) {
+            connected = telnetTerminal.connect(ip, telnetPort, username, password)
+            if (connected) {
+                telnetTerminal.execute("ip service enable api")
+                connected = mikroTikTerminal.connect(ip, apiPort, username, password)
             } else {
-                LOGGER.info("NOT logged on " + ip + ". Try again.");
-                result.put(ip, null);
+                return false
             }
-         }
-         return result;
+        }
+        mikroTikTerminal.execute("/ip/service/enable numbers=ftp")
+        ftpTerminal.connect(ip, ftpPort, username, password)
+        return connected
+    }
+
+    private fun disconnect(mikroTikTerminal: MikroTikTerminal, telnetTerminal: TelnetTerminal, ftpTerminal: FTPTerminal): Boolean {
+        return mikroTikTerminal.disconnect() && telnetTerminal.disconnect() && ftpTerminal.disconnect()
+    }
+
+    companion object {
+        private val LOGGER = LogManager.getLogger(MikroTikTerminator::class.java!!.getName())
+
+        private val LOGIN_PATTERN = "Login: "
+        private val PASSWORD_PATTERN = "Password: "
+        private val CMD_PATTERN = "\\[.+@.+\\][^>]+[>]+ "
+
+        private val LOCAL_PATH = "src/main/resources/"
     }
 }
