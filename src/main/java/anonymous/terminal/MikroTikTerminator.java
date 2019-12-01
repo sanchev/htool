@@ -1,85 +1,211 @@
-package anonymous.terminal
+package anonymous.terminal;
 
-import anonymous.base.Device
-import anonymous.base.Host
-import anonymous.base.Service
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-class MikroTikTerminator(private val host: Host) : Runnable {
+import static java.lang.Thread.sleep;
 
-    private var ip: String? = null
-    private var username: String? = null
-    private var password: String? = null
+public class MikroTikTerminator {
+    static final Logger LOGGER = LogManager.getLogger(MikroTikTerminator.class.getName());
 
-    override fun run() {
-        ip = host.ip
-        username = host.login
-        password = host.password
-        for (device in host.deviceList) {
-            if ("MikroTik" == device.vendor) {
-                var apiPort = MikroTikTerminal.DEFAULT_PORT
-                var telnetPort = TelnetTerminal.DEFAULT_PORT
-                var ftpPort = FTPTerminal.DEFAULT_PORT
-                if (!device.serviceList.isEmpty()) {
-                    for (service in device.serviceList) {
-                        if ("api" == service.name)
-                            apiPort = service.port
-                        if ("telnet" == service.name)
-                            telnetPort = service.port
-                        if ("ftp" == service.name)
-                            ftpPort = service.port
-                    }
-                }
-                val mikroTikTerminal = MikroTikTerminal()
-                val telnetTerminal = TelnetTerminal(LOGIN_PATTERN, PASSWORD_PATTERN, CMD_PATTERN)
-                val ftpTerminal = FTPTerminal()
+    String host;
+    String username;
+    String password;
 
-                val connected = connect(mikroTikTerminal, apiPort, telnetTerminal, telnetPort, ftpTerminal, ftpPort)
+    int mikroTikApiPort = MikroTikTerminal.DEFAULT_PORT;
+    private int telnetPort = TelnetTerminal.DEFAULT_PORT;
+    private int ftpPort = FTPTerminal.DEFAULT_PORT;
 
-                if (connected) {
-                    LOGGER.info("Logged on " + ip!!)
+    private static final String LOGIN_PATTERN = "Login: ";
+    private static final String PASSWORD_PATTERN = "Password: ";
+    private static final String CMD_PATTERN = "\\[.+@.+\\][^>]+[>]+ ";
 
-                    //do something
+    private static final String LOCAL_PATH = "src/main/resources/";
+    private static final String SCRIPTS_PATH = "src/main/resources/scripts/";
 
-                    if (disconnect(mikroTikTerminal, telnetTerminal, ftpTerminal)) {
-                        LOGGER.info("Logout from " + ip!!)
-                    }
-                } else {
-                    LOGGER.info("NOT logged on $ip. Try again.")
-                }
-            }
-        }
+    private static final String FIRMWARE_VERSION  = "6.43.8";
+
+    private static final String FIRMWARE = "routeros-mipsbe-" + FIRMWARE_VERSION + ".npk";
+
+    static Terminal mikroTikTerminal = new MikroTikTerminal();
+    private static Terminal telnetTerminal = new TelnetTerminal(LOGIN_PATTERN, PASSWORD_PATTERN, CMD_PATTERN);
+    private static Terminal ftpTerminal = new FTPTerminal();
+
+    public MikroTikTerminator(String host, String username, String password) {
+        this.host = host;
+        this.username = username;
+        this.password = password;
     }
 
-    private fun connect(mikroTikTerminal: MikroTikTerminal, apiPort: Int, telnetTerminal: TelnetTerminal, telnetPort: Int, ftpTerminal: FTPTerminal, ftpPort: Int): Boolean {
-        var connected = mikroTikTerminal.connect(ip, apiPort, username, password)
-        if (!connected) {
-            connected = telnetTerminal.connect(ip, telnetPort, username, password)
-            if (connected) {
-                telnetTerminal.execute("ip service enable api")
-                connected = mikroTikTerminal.connect(ip, apiPort, username, password)
+    public void setMikroTikApiPort(int mikroTikApiPort) {
+        this.mikroTikApiPort = mikroTikApiPort;
+    }
+
+    public void setTelnetPort(int telnetPort) {
+        this.telnetPort = telnetPort;
+    }
+
+    public void setFtpPort(int ftpPort) {
+        this.ftpPort = ftpPort;
+    }
+
+    public void run() {
+        try {
+            if (connect()) {
+                LOGGER.info("Logged on " + host);
+
+                if (!needUpdate()) {
+                    update();
+                    needUpdate();
+                }
+
+                script("disableDiscovery");
+                script("disableLog");
+                script("disableMacServer");
+                reIdentity();
+                script("time");
+
+                if (disconnect()) {
+                    LOGGER.info("Logout from " + host);
+                }
             } else {
-                return false
+                throw new RuntimeException("NOT logged on " + host + ". Try again.");
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    boolean connect() {
+        boolean connected = mikroTikTerminal.connect(host, mikroTikApiPort, username, password);
+        if (!connected) {
+            connected = telnetTerminal.connect(host, telnetPort, username, password);
+            if (connected) {
+                telnetTerminal.execute("ip service enable api");
+                connected = mikroTikTerminal.connect(host, mikroTikApiPort, username, password);
+            } else {
+                return false;
             }
         }
-        mikroTikTerminal.execute("/ip/service/enable numbers=ftp")
-        ftpTerminal.connect(ip, ftpPort, username, password)
-        return connected
+        mikroTikTerminal.execute("/ip/service/enable numbers=ftp");
+        ftpTerminal.connect(host, ftpPort, username, password);
+        return connected;
     }
 
-    private fun disconnect(mikroTikTerminal: MikroTikTerminal, telnetTerminal: TelnetTerminal, ftpTerminal: FTPTerminal): Boolean {
-        return mikroTikTerminal.disconnect() && telnetTerminal.disconnect() && ftpTerminal.disconnect()
+    boolean disconnect() {
+        if (((TelnetTerminal) telnetTerminal).isConnected())
+            return mikroTikTerminal.disconnect() && telnetTerminal.disconnect() && ftpTerminal.disconnect();
+        else
+            return mikroTikTerminal.disconnect() && ftpTerminal.disconnect();
     }
 
-    companion object {
-        private val LOGGER = LogManager.getLogger(MikroTikTerminator::class.java!!.getName())
+    private boolean needUpdate() {
+        //LOGGER.info("needUpdate()");
 
-        private val LOGIN_PATTERN = "Login: "
-        private val PASSWORD_PATTERN = "Password: "
-        private val CMD_PATTERN = "\\[.+@.+\\][^>]+[>]+ "
+        String cmd = "/system/resource/print";
+        List<Map<String, String>> resultList = (List<Map<String, String>>) mikroTikTerminal.execute(cmd);
 
-        private val LOCAL_PATH = "src/main/resources/"
+        String version =  resultList.get(0).get("version");
+
+        LOGGER.info("Version: " + version);
+
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+(\\.\\d+)*");
+        Matcher matcher = pattern.matcher(version);
+
+        if (matcher.find()) {
+            version = matcher.group();
+        }
+
+        return FIRMWARE_VERSION.equals(version);
+    }
+
+    private void script(String scriptName) throws InterruptedException  {
+        String fileName = scriptName + ".rsc";
+
+        //remove script if exist
+        String  cmd = "/system/script/print";
+        List<Map<String, String>> resultList = (List<Map<String, String>>) mikroTikTerminal.execute(cmd);
+
+        String scriptId = null;
+        for (Map<String, String> result : resultList) {
+            if (scriptName.equals(result.get("name"))) {
+                scriptId = result.get(".id");
+                break;
+            }
+        }
+
+        cmd = "/system/script/remove .id=" + scriptId;
+        mikroTikTerminal.execute(cmd);
+
+        //upload script file
+        ftpTerminal.execute("upload", "-r", fileName, "-l", SCRIPTS_PATH + fileName);
+
+        sleep(2000);
+
+        cmd = "/import file-name=" + fileName;
+        mikroTikTerminal.execute(cmd);
+
+        sleep(2000);
+
+        //run script
+        cmd = "/system/script/print";
+        resultList = (List<Map<String, String>>) mikroTikTerminal.execute(cmd);
+
+        scriptId = null;
+        for (Map<String, String> result : resultList) {
+            if (scriptName.equals(result.get("name"))) {
+                scriptId = result.get(".id");
+                break;
+            }
+        }
+
+        cmd = "/system/script/run .id=" + scriptId;
+        mikroTikTerminal.execute(cmd);
+
+        LOGGER.info("Script: " + scriptName + ": done");
+    }
+
+    private void update() {
+        LOGGER.info("update()");
+
+        ftpTerminal.execute("upload", "-r ", FIRMWARE, "-l", LOCAL_PATH + FIRMWARE);
+
+        String cmd = "/system/reboot";
+        mikroTikTerminal.execute(cmd);
+
+        try {
+            sleep(1*60*1000);
+        } catch (Exception e) {
+            connect();
+        }
+
+        connect();
+    }
+
+    private void reIdentity() throws InterruptedException, IOException {
+        String scriptName = "identity";
+        Path scriptFilePath = Paths.get(SCRIPTS_PATH + scriptName + ".rsc");
+
+        Charset charset = StandardCharsets.UTF_8;
+
+        String content = new String(Files.readAllBytes(scriptFilePath), charset);
+        String newContent = content.replaceAll("X.X.X.X", host);
+        Files.write(scriptFilePath, newContent.getBytes(charset));
+
+        script("identity");
+
+        Files.write(scriptFilePath, content.getBytes(charset));
     }
 }

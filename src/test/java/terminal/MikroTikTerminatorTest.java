@@ -15,18 +15,16 @@ public class MikroTikTerminatorTest {
     @Test
     public void testExecute() {
         LOGGER.info("testExecute()");
-        List<Host> hostList = new ArrayList<>();
-        Host host1 = new Host();
-        host1.setIp("10.0.8.47");
-        host1.setLogin("admin");
-        host1.setPassword("120960");
-        hostList.add(host1);
+        String host = "10.0.0.50";
+        String username = "admin";
+        String password = "120960";
 
-        List<String> cmdList = new ArrayList<>();
-        cmdList.add("/system/identity/print");
+        String cmd = "/system/identity/print";
 
-        MikroTikTerminator terminator = new MikroTikTerminator(hostList, cmdList);
+        MikroTikTerminator terminator = new MikroTikTerminator(host, username, password);
 
-        LOGGER.info(terminator.execute());
+        terminator.run();
+
+        //LOGGER.info(terminator.execute());
     }
 }
